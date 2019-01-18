@@ -1,5 +1,10 @@
 # Powered by Python 2.7
 
+#Tulip project, part 1, visualisation and pre-processing of data
+#18-01-2019
+#Pauline Bock, Guillaume Sotton
+
+
 # To cancel the modifications performed by the script
 # on the current graph, click on the undo button.
 
@@ -14,10 +19,10 @@
 #   * Ctrl + Space  : show auto-completion dialog.
 
 from tulip import tlp
+from tulipgui import tlpgui
 
 # The updateVisualization(centerViews = True) function can be called
 # during script execution to update the opened views
-
 # The pauseScript() function can be called to pause the script execution.
 # To resume the script execution, you will have to click on the "Run script " button.
 
@@ -29,11 +34,59 @@ from tulip import tlp
 # to run the script on the current graph
 
 #Partie 1 : Pre-traitement
-def initializeGraph(graph,locus):
+  
+'''
+@params :
+'''
+def initLayout(graph, size, layout):
+  
+  #Changing size
+  new_size = tlp.Size(1.0,1.0,1.0)
+  size.setAllNodeValue(new_size, graph)
+  
+  #Changing layout
+  graph.applyLayoutAlgorithm('Circular', layout)
+ 
+'''
+@params :
+'''
+def initLabels(graph, locus, label, labelColor, labelBorderWidth, labelPosition):
+  
+  #Applying and changing labels
   params=tlp.getDefaultPluginParameters('To labels',graph)
-  params['input property']= locus
-  graph.applyStringAlgorithm('To labels',graph.getStringProperty('viewLabel'),params)
+  params['input'] = locus
+  graph.applyStringAlgorithm('To labels',label ,params)
+  
+  white = tlp.Color(255,255,255)
+  labelColor.setAllNodeValue(white, graph)
+  
+  labelBorderWidth.setAllNodeValue(0)
 
+  center = 0
+  labelPosition.setAllNodeValue(center)
+  
+  
+'''
+@params :
+
+'''
+def initEdges(graph, negative, positive, color):
+  
+  for e in graph.getEdges():
+    #render.setEdgeColorInterpolate(False)
+    if (negative[e] == True and positive[e] == False):
+      neg_color = tlp.Color(255,0,0)
+      color.setEdgeValue(e, neg_color)
+    if (negative[e] == False and positive[e] == True):
+      pos_color = tlp.Color(0,255,0)
+      color[e] = pos_color
+
+  
+ 
+
+  
+
+  
 def main(graph): 
   negative = graph.getBooleanProperty("Negative")
   positive = graph.getBooleanProperty("Positive")
@@ -58,26 +111,30 @@ def main(graph):
   tp9_s = graph.getDoubleProperty("tp9 s")
   viewBorderColor = graph.getColorProperty("viewBorderColor")
   viewBorderWidth = graph.getDoubleProperty("viewBorderWidth")
-  viewColor = graph.getColorProperty("viewColor")
+  color = graph.getColorProperty("viewColor")
   viewFont = graph.getStringProperty("viewFont")
   viewFontSize = graph.getIntegerProperty("viewFontSize")
   viewIcon = graph.getStringProperty("viewIcon")
-  viewLabel = graph.getStringProperty("viewLabel")
+  label = graph.getStringProperty("viewLabel")
   viewLabelBorderColor = graph.getColorProperty("viewLabelBorderColor")
-  viewLabelBorderWidth = graph.getDoubleProperty("viewLabelBorderWidth")
-  viewLabelColor = graph.getColorProperty("viewLabelColor")
-  viewLabelPosition = graph.getIntegerProperty("viewLabelPosition")
-  viewLayout = graph.getLayoutProperty("viewLayout")
+  labelBorderWidth = graph.getDoubleProperty("viewLabelBorderWidth")
+  labelColor = graph.getColorProperty("viewLabelColor")
+  labelPosition = graph.getIntegerProperty("viewLabelPosition")
+  layout = graph.getLayoutProperty("viewLayout")
   viewMetric = graph.getDoubleProperty("viewMetric")
   viewRotation = graph.getDoubleProperty("viewRotation")
   viewSelection = graph.getBooleanProperty("viewSelection")
-  viewShape = graph.getIntegerProperty("viewShape")
-  viewSize = graph.getSizeProperty("viewSize")
+  shape = graph.getIntegerProperty("viewShape")
+  size = graph.getSizeProperty("viewSize")
   viewSrcAnchorShape = graph.getIntegerProperty("viewSrcAnchorShape")
   viewSrcAnchorSize = graph.getSizeProperty("viewSrcAnchorSize")
   viewTexture = graph.getStringProperty("viewTexture")
   viewTgtAnchorShape = graph.getIntegerProperty("viewTgtAnchorShape")
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
-  initializeGraph(graph,locus)
+  
+
+  initLayout(graph, size, layout)
+  initLabels(graph, locus, label, labelColor, labelBorderWidth, labelPosition)
+  initEdges(graph, negative, positive, color)
 
   
