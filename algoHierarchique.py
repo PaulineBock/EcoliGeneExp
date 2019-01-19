@@ -28,9 +28,23 @@ from tulip import tlp
 # The main(graph) function must be defined 
 # to run the script on the current graph
 
-#def makeHierarchicalAlgorithm(graph,nodes):
-#  return makeHierarchicalAlgorithmRecursively(graph,root)
 
+def  makeHierarchicalTree(tree, node, cluster):
+  #print node
+  if cluster.numberOfSubGraphs() == 0:
+    for clusterNode in cluster.getNodes():
+      newLeaf = tree.addNode(clusterNode)
+      tree.addEdge(newLeaf, node)
+    
+    
+  for subgraphs in cluster.getSubGraphs():
+    newChild = tree.addNode()
+    print newChild
+    tree.addEdge(newChild, node)
+    return makeHierarchicalTree(tree, newChild, subgraphs)
+
+    
+'''
 def makeHierarchicalAlgorithmRecursively(tree,root,graph):
   for i in range(graph.numberOfSubGraphs()):
     print i
@@ -45,53 +59,12 @@ def makeHierarchicalAlgorithmRecursively(tree,root,graph):
 #  print sub
 #  nbSub=graph.numberOfSubGraphs()
 #  print nbSub
-  
+  '''
 
 def main(graph): 
-  Locus = graph.getStringProperty("Locus")
-  Negative = graph.getBooleanProperty("Negative")
-  Positive = graph.getBooleanProperty("Positive")
-  locus = graph.getStringProperty("locus")
-  similarity = graph.getDoubleProperty("similarity")
-  tp1_s = graph.getDoubleProperty("tp1 s")
-  tp10_s = graph.getDoubleProperty("tp10 s")
-  tp11_s = graph.getDoubleProperty("tp11 s")
-  tp12_s = graph.getDoubleProperty("tp12 s")
-  tp13_s = graph.getDoubleProperty("tp13 s")
-  tp14_s = graph.getDoubleProperty("tp14 s")
-  tp15_s = graph.getDoubleProperty("tp15 s")
-  tp16_s = graph.getDoubleProperty("tp16 s")
-  tp17_s = graph.getDoubleProperty("tp17 s")
-  tp2_s = graph.getDoubleProperty("tp2 s")
-  tp3_s = graph.getDoubleProperty("tp3 s")
-  tp4_s = graph.getDoubleProperty("tp4 s")
-  tp5_s = graph.getDoubleProperty("tp5 s")
-  tp6_s = graph.getDoubleProperty("tp6 s")
-  tp7_s = graph.getDoubleProperty("tp7 s")
-  tp8_s = graph.getDoubleProperty("tp8 s")
-  tp9_s = graph.getDoubleProperty("tp9 s")
-  viewBorderColor = graph.getColorProperty("viewBorderColor")
-  viewBorderWidth = graph.getDoubleProperty("viewBorderWidth")
-  viewColor = graph.getColorProperty("viewColor")
-  viewFont = graph.getStringProperty("viewFont")
-  viewFontSize = graph.getIntegerProperty("viewFontSize")
-  viewIcon = graph.getStringProperty("viewIcon")
-  viewLabel = graph.getStringProperty("viewLabel")
-  viewLabelBorderColor = graph.getColorProperty("viewLabelBorderColor")
-  viewLabelBorderWidth = graph.getDoubleProperty("viewLabelBorderWidth")
-  viewLabelColor = graph.getColorProperty("viewLabelColor")
-  viewLabelPosition = graph.getIntegerProperty("viewLabelPosition")
-  viewLayout = graph.getLayoutProperty("viewLayout")
-  viewMetric = graph.getDoubleProperty("viewMetric")
-  viewRotation = graph.getDoubleProperty("viewRotation")
-  viewSelection = graph.getBooleanProperty("viewSelection")
-  viewShape = graph.getIntegerProperty("viewShape")
-  viewSize = graph.getSizeProperty("viewSize")
-  viewSrcAnchorShape = graph.getIntegerProperty("viewSrcAnchorShape")
-  viewSrcAnchorSize = graph.getSizeProperty("viewSrcAnchorSize")
-  viewTexture = graph.getStringProperty("viewTexture")
-  viewTgtAnchorShape = graph.getIntegerProperty("viewTgtAnchorShape")
-  viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
-  root=graph.getRoot()
-  tree=graph.addSubGraph(name='Hierarchical Tree')
-  makeHierarchicalAlgorithmRecursively(tree,root,graph)
+  
+  rootGraph=graph.getRoot()
+  tree=rootGraph.addSubGraph(name='Hierarchical Tree')
+  topCluster = rootGraph.getDescendantGraph('Genes interactions')
+  root = tree.addNode()
+  makeHierarchicalTree(tree,root,topCluster)
