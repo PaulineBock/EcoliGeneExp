@@ -30,10 +30,13 @@ from tulip import tlp
 
 
 def  makeHierarchicalTree(tree, node, cluster):
-  #print node
+  print "node, cluster " + str(node) + " " + str(cluster)
   if cluster.numberOfSubGraphs() == 0:
+    print "end of branch"
     for clusterNode in cluster.getNodes():
-      newLeaf = tree.addNode(clusterNode)
+      propertiesValues = cluster.getNodePropertiesValues(clusterNode)
+      newLeaf = tree.addNode(propertiesValues)
+      print newLeaf, clusterNode
       tree.addEdge(newLeaf, node)
     
     
