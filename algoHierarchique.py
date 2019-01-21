@@ -29,41 +29,22 @@ from tulip import tlp
 # to run the script on the current graph
 
 
-def  makeHierarchicalTree(tree, node, cluster):
-  print "node, cluster " + str(node) + " " + str(cluster)
+def makeHierarchicalTree(tree, node, cluster):
   if cluster.numberOfSubGraphs() == 0:
-    print "end of branch"
     for clusterNode in cluster.getNodes():
       propertiesValues = cluster.getNodePropertiesValues(clusterNode)
       newLeaf = tree.addNode(propertiesValues)
-      print newLeaf, clusterNode
       tree.addEdge(newLeaf, node)
-    
+    print "leaves added"
+    return
     
   for subgraphs in cluster.getSubGraphs():
     newChild = tree.addNode()
-    print newChild
     tree.addEdge(newChild, node)
-    return makeHierarchicalTree(tree, newChild, subgraphs)
+    makeHierarchicalTree(tree, newChild, subgraphs, cpt)
+    
 
     
-'''
-def makeHierarchicalAlgorithmRecursively(tree,root,graph):
-  for i in range(graph.numberOfSubGraphs()):
-    print i
-    newNode=tree.addNode()
-    root=tree.getSuperGraph()
-#    print root
-#    info=root.getNodes()
-#    newEdge=graph.addEdge(newNode,info)
-      
-      
-#  sub=graph.getSubGraph(0)
-#  print sub
-#  nbSub=graph.numberOfSubGraphs()
-#  print nbSub
-  '''
-
 def main(graph): 
   
   rootGraph=graph.getRoot()
@@ -71,3 +52,4 @@ def main(graph):
   topCluster = rootGraph.getDescendantGraph('Genes interactions')
   root = tree.addNode()
   makeHierarchicalTree(tree,root,topCluster)
+
