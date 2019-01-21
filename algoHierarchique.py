@@ -43,7 +43,9 @@ def makeHierarchicalTree(tree, node, cluster):
     tree.addEdge(newChild, node)
     makeHierarchicalTree(tree, newChild, subgraphs, cpt)
     
-
+def applyRadialLayout(tree):
+  #Changing layout
+  tree.applyLayoutAlgorithm('Tree Radial')
     
 def main(graph): 
   
@@ -52,4 +54,5 @@ def main(graph):
   topCluster = rootGraph.getDescendantGraph('Genes interactions')
   root = tree.addNode()
   makeHierarchicalTree(tree,root,topCluster)
+  applyRadialLayout(tree)
 
