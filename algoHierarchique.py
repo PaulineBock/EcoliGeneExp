@@ -41,18 +41,40 @@ def makeHierarchicalTree(tree, node, cluster):
   for subgraphs in cluster.getSubGraphs():
     newChild = tree.addNode()
     tree.addEdge(newChild, node)
-    makeHierarchicalTree(tree, newChild, subgraphs, cpt)
-    
+    makeHierarchicalTree(tree, newChild, subgraphs)
+
 def applyRadialLayout(tree):
   #Changing layout
   tree.applyLayoutAlgorithm('Tree Radial')
+  
+def colorMapping(graph, doubleProperty):
+  params = tlp.getDefaultPluginParameters('Color Mapping', graph)
+  params['input property'] = doubleProperty
+
+  success = graph.applyColorAlgorithm('Color Mapping', params)
+
+def bundleBuild(tree, gene):
+  for edge in gene.getEdges():
+    src =  gene.source(edge)
+    tgt = gene.target(edge)
+    srcPath = tlp.dfs(tree, src)
+    tgtPath = tlp.dfs(tree, tgt)
+    print str(src) + "  to  " + str(tgt)
+    print "src path" + str(srcPath[0]) + str(srcPath[len(srcPath)-1])
+    print "tgt path" + str(tgtPath[0]) + str(tgtPath[len(tgtPath)-1])
     
 def main(graph): 
-  
+  '''
   rootGraph=graph.getRoot()
   tree=rootGraph.addSubGraph(name='Hierarchical Tree')
   topCluster = rootGraph.getDescendantGraph('Genes interactions')
   root = tree.addNode()
   makeHierarchicalTree(tree,root,topCluster)
   applyRadialLayout(tree)
+  tp1_s = graph.getDoubleProperty("tp1 s")
+  colorMapping(tree, tp1_s)'''
+  rootGraph=graph.getRoot()
+  tree=rootGraph.getDescendantGraph('Hierarchical tree')
+  geneInteractions=rootGraph.getDescendantGraph('Genes interactions')
+  bundleBuild(tree, geneInteractions)
 
