@@ -33,9 +33,8 @@ def makeHierarchicalTree(tree, node, cluster):
   if cluster.numberOfSubGraphs() == 0:
     for clusterNode in cluster.getNodes():
       propertiesValues = cluster.getNodePropertiesValues(clusterNode)
-      newLeaf = tree.addNode(propertiesValues)
-      tree.addEdge(newLeaf, node)
-    print "leaves added"
+      tree.addNode(clusterNode)
+      tree.addEdge(clusterNode, node)
     return
     
   for subgraphs in cluster.getSubGraphs():
@@ -53,28 +52,37 @@ def colorMapping(graph, doubleProperty):
 
   success = graph.applyColorAlgorithm('Color Mapping', params)
 
-def bundleBuild(tree, gene):
+def bundleBuild(tree, gene, root):
+  print root
+  print "root " + str(root)
   for edge in gene.getEdges():
-    src =  gene.source(edge)
-    tgt = gene.target(edge)
-    srcPath = tlp.dfs(tree, src)
-    tgtPath = tlp.dfs(tree, tgt)
-    print str(src) + "  to  " + str(tgt)
-    print "src path" + str(srcPath[0]) + str(srcPath[len(srcPath)-1])
-    print "tgt path" + str(tgtPath[0]) + str(tgtPath[len(tgtPath)-1])
+    print "source "+ str(gene.source(edge)) + "   edge  " + str(gene.target(edge))
+    srcpath = [ gene.source(edge)]
+    sourcePath = depthFirstSearch(tree, root, gene.source(edge), srcpath)
+    #targetPath = depthFirstSearch(tree, root, gene.target(edge))
+    #print sourcePath
+    #print targetPath    
+    
+def depthFirstSearch(tree, root, target, path):
+  if target == root:
+    return path
+  
+  for child in tree.getInNodes(target):
+    path.append(child)
+    depthFirstSearch(tree, root, child)
+   
+  print path
     
 def main(graph): 
-  '''
+  
   rootGraph=graph.getRoot()
   tree=rootGraph.addSubGraph(name='Hierarchical Tree')
-  topCluster = rootGraph.getDescendantGraph('Genes interactions')
+  geneInteractions = rootGraph.getDescendantGraph('Genes interactions')
   root = tree.addNode()
-  makeHierarchicalTree(tree,root,topCluster)
+  makeHierarchicalTree(tree,root,geneInteractions)
   applyRadialLayout(tree)
   tp1_s = graph.getDoubleProperty("tp1 s")
-  colorMapping(tree, tp1_s)'''
-  rootGraph=graph.getRoot()
-  tree=rootGraph.getDescendantGraph('Hierarchical tree')
-  geneInteractions=rootGraph.getDescendantGraph('Genes interactions')
-  bundleBuild(tree, geneInteractions)
+  colorMapping(tree, tp1_s)
+  print root
+  bundleBuild(tree, geneInteractions, root)
 
