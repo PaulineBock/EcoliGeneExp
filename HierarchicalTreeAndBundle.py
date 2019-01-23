@@ -52,26 +52,41 @@ def colorMapping(graph, doubleProperty):
 
   success = graph.applyColorAlgorithm('Color Mapping', params)
 
-def bundleBuild(tree, gene, root, layout):
-
+def bundleBuild(tree, gene, root, geneLayout, treeLayout, shape):
   for edge in gene.getEdges():
     srcToTargetPath = shortestPath(tree, gene.source(edge), gene.target(edge))
-    edgeControlPoints(tree, edge, srcToTargetPath, layout)
+    edgeControlPoints(tree, edge, srcToTargetPath, geneLayout, treeLayout)
+  shape.setAllEdgeValue(16)
+  
     
-def edgeControlPoints(tree, edge, path, layout):
+def edgeControlPoints(tree, edge, path, geneLayout, treeLayout):
   nodePos = []
   for node in path:
-    if layout[node] != (0,0,0):
-      nodePos.append(layout[node])
-  layout.setEdgeValue(edge, nodePos)
+    nodePos.append(geneLayout[node])
+  geneLayout.setEdgeValue(edge, nodePos)
   
 def shortestPath(tree, src, tgt):
   
   sourcePath = findParents(tree, src)
   targetPath = findParents(tree, tgt)
   targetPath.pop(len(targetPath)-1)
+  
+  #Find the common ancestors and delete the parents of common ancestors
+  for srcnode in sourcePath:
+    for tgtnode in targetPath:
+      if (srcnode == tgtnode):
+        srcdeleted = sourcePath.pop(len(sourcePath)-1)
+        tgtdeleted = targetPath.pop(len(targetPath) -1)
+        while(srcdeleted!=srcnode and tgtdeleted!=tgtnode ):
+          srcdeleted = sourcePath.pop(len(sourcePath)-1)
+          tgtdeleted = targetPath.pop(len(targetPath) -1)
+                 
+        sourcePath.append(srcnode)
+        targetPath.append(tgtnode)
+        
+  
   targetPath.reverse()
-  sourcePath.extend(targetPath)
+  sourcePath = sourcePath + targetPath
   return sourcePath
   
 def findParents(tree, node):
@@ -79,7 +94,6 @@ def findParents(tree, node):
   return inferiorLevel(tree, node, path)
  
 def inferiorLevel(tree, node, path):
-   
   for parent in tree.getInNodes(node):
     path.append(parent)
     inferiorLevel(tree, parent, path)
@@ -92,13 +106,14 @@ def main(graph):
   tree=rootGraph.addSubGraph(name='Hierarchical Tree')
   geneInteractions = rootGraph.getDescendantGraph('Genes interactions')
   
-  viewLayout = geneInteractions.getLayoutProperty("viewLayout")
-  
+  geneLayout = geneInteractions.getLayoutProperty("viewLayout")
+  treeLayout = tree.getLayoutProperty("viewLayout")
+  viewShape = geneInteractions.getIntegerProperty("viewShape")
   root = tree.addNode()
   makeHierarchicalTree(tree,root,geneInteractions)
   applyRadialLayout(tree)
   tp1_s = graph.getDoubleProperty("tp1 s")
   colorMapping(tree, tp1_s)
   print root
-  bundleBuild(tree, geneInteractions, root, viewLayout)
+  bundleBuild(tree, geneInteractions, root, geneLayout, treeLayout, viewShape)
 
