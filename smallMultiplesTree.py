@@ -59,41 +59,38 @@ def colorSmallMultiples(smallMultiplesTree,metric):
 
 def placeSmallMultiples(smallMultiplesTree, nbCol):
   bb = tlp.computeBoundingBox(smallMultiplesTree)
-  #for col in nbCol:
-  for sg in smallMultiplesTree.getSubGraphs():
-    layoutSG = sg.getLayoutProperty("viewLayout")
-    sgNames = sg.getName().split(" ")
-    sgName = sgNames[0]
-    nbSG = int(sgName[2:len(sgName)])
-    for node in sg.getNodes():
-      layoutSG[node] = layoutSG[node] + (bb[1] - bb[0]) * nbSG
-      """
-      layoutSG[node][0] = layoutSG[node][0] + (bb[1][0]) * nbSG
-      #layoutSG[node][1] = layoutSG[node][1] + bb[1][1] * col
-      """
-    for edge in sg.getEdges():
-      for i in range(0, len(layoutSG[edge])):
-        print layoutSG[edge][i] 
-        layoutSG[edge][i] = layoutSG[edge][i] + (bb[1] - bb[0]) * nbSG
-        """
-        layoutSG[edge][i][0] = layoutSG[edge][i][0] +  bb[1][0] * nbSG
-        """
-       
-def placeSmallMultiple(smallMultiplesTree, smallLayout, nbCol):
-  bb = tlp.computeBoundingBox(smallMultiplesTree)
   xmin = bb[0][0]
   xmax = bb[1][0]
   ymin = bb[0][1]
   ymax = bb[1][1]
   
-  for col in range(0,nbCol):
-    for sg in smallMultiplesTree.getSubGraphs():
-      print sg
-      sgName = sg.getName()
-      print sgName
-      nb = sgName[1:len(sgName)]
-      print nb
-      
+  smallLayout = smallMultiplesTree.getLayoutProperty("viewLayout")
+  col=1
+  while col <= nbCol:
+    if col==1:
+      for sg in smallMultiplesTree.getSubGraphs():
+        sgNames = sg.getName().split(" ")
+        sgName = sgNames[0]
+        nbSG = int(sgName[2:len(sgName)])
+        print nbSG
+        for node in sg.getNodes():
+          #print "before " + str(smallLayout[node])
+          newPos = tlp.Coord(smallLayout[node][0] + xmax * nbSG, smallLayout[node][1], smallLayout[node][2])
+          smallLayout.setNodeValue(node, newPos)  
+          #smallLayout[node][0] = smallLayout[node][0] + xmax * nbSG
+          #smallLayout[node][1] = smallLayout[node][1] + bb[1][1] * col
+          #print "after " + str(smallLayout[node])
+        newEdgePos = []
+        for edge in sg.getEdges():
+          #print "before " + str(smallLayout[edge])
+          for pos in smallLayout[edge]: 
+            newPos = tlp.Coord(pos[0] + xmax * nbSG, pos[1], pos[2])
+            newEdgePos.append(newPos)
+          smallLayout.setEdgeValue(edge, newEdgePos)  
+          #smallLayout[edge][i][0] = smallLayout[edge][i][0] + xmax * nbSG
+          #print "after " + str(smallLayout[edge])
+    col+=1
+
 def main(graph): 
   Locus = graph.getStringProperty("Locus")
   Negative = graph.getBooleanProperty("Negative")
@@ -146,8 +143,7 @@ def main(graph):
   #Partie 3
   smallMultiplesTree=rootGraph.addSubGraph(name='Small Multiples')
   buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,viewMetric)
-  smallLayout = smallMultiplesTree.getLayoutProperty("viewLayout")
+  
   nbCol = 4
   colorSmallMultiples(smallMultiplesTree,viewMetric)
-  placeSmallMultiples(smallMultiplesTree, 2)
-  placeSmallMultiple(smallMultiplesTree, smallLayout, nbCol)
+  placeSmallMultiples(smallMultiplesTree, nbCol)
