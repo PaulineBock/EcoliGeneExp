@@ -71,18 +71,26 @@ def initLabels(graph, locus, label, labelColor, labelBorderWidth, labelPosition)
 
 '''
 def initEdges(graph, negative, positive, color):
+  red = tlp.Color(255,0,0)
+  green = tlp.Color(0,255,0)
+  darkblue = tlp.Color(0,0,80)
+  orange = tlp.Color(255,150,0)
   
   for e in graph.getEdges():
     #render.setEdgeColorInterpolate(False)
     if (negative[e] == True and positive[e] == False):
-      neg_color = tlp.Color(255,0,0)
-      color.setEdgeValue(e, neg_color)
+      color.setEdgeValue(e, red)
     if (negative[e] == False and positive[e] == True):
-      pos_color = tlp.Color(0,255,0)
-      color[e] = pos_color
+      color.setEdgeValue(e, green)
+    if (negative[e] == False and positive[e] == False):
+      color.setEdgeValue(e, darkblue)
     if (negative[e] == True and positive[e] == True):
-      doublePos_color = tlp.Color(0,0,255)
-      color[e] = doublePos_color  
+      color.setEdgeValue(e, orange)
+      
+  
+ 
+
+  
 
   
 def main(graph): 
