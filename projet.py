@@ -80,11 +80,9 @@ def initEdges(graph, negative, positive, color):
     if (negative[e] == False and positive[e] == True):
       pos_color = tlp.Color(0,255,0)
       color[e] = pos_color
-
-  
- 
-
-  
+    if (negative[e] == True and positive[e] == True):
+      doublePos_color = tlp.Color(0,0,255)
+      color[e] = doublePos_color  
 
   
 def main(graph): 
