@@ -113,13 +113,37 @@ def buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,tree,node
           metric[n] = time[n]
         
       
-def fillSubgraphs(smallMultiplesTree,metric,timepoints):    
+def colorSmallMultiples(smallMultiplesTree,metric):
   for sg in smallMultiplesTree.getSubGraphs():
-    metric = sg.getLocalDoubleProperty("viewMetric")
-    for n in sg.getNodes():
-      for time in timepoints:
-        metric[n]=time[n]
-        
+    params = tlp.getDefaultPluginParameters('Color Mapping', sg)
+    colorScale = tlp.ColorScale([])
+    newColors = [tlp.Color.Green, tlp.Color.Black,tlp.Color.Red]
+    colorScale.setColorScale(newColors,True)
+    params['color scale'] = colorScale
+    sg.applyColorAlgorithm('Color Mapping',params)
+
+def placeSmallMultiples(smallMultiplesTree, nbCol):
+  bb = tlp.computeBoundingBox(smallMultiplesTree)
+  #for col in nbCol:
+  for sg in smallMultiplesTree.getSubGraphs():
+    layoutSG = sg.getLayoutProperty("viewLayout")
+    sgNames = sg.getName().split(" ")
+    sgName = sgNames[0]
+    nbSG = int(sgName[2:len(sgName)])
+    for node in sg.getNodes():
+      layoutSG[node] = layoutSG[node] + (bb[1] - bb[0]) * nbSG
+      """
+      layoutSG[node][0] = layoutSG[node][0] + (bb[1][0]) * nbSG
+      #layoutSG[node][1] = layoutSG[node][1] + bb[1][1] * col
+      """
+    for edge in sg.getEdges():
+      for i in range(0, len(layoutSG[edge])):
+        print layoutSG[edge][i] 
+        layoutSG[edge][i] = layoutSG[edge][i] + (bb[1] - bb[0]) * nbSG
+        """
+        layoutSG[edge][i][0] = layoutSG[edge][i][0] +  bb[1][0] * nbSG
+        """
+
 def main(graph): 
   tp1_s = graph.getDoubleProperty("tp1 s")
   tp10_s = graph.getDoubleProperty("tp10 s")
@@ -163,4 +187,5 @@ def main(graph):
   #Partie 3
   smallMultiplesTree=rootGraph.addSubGraph(name='Small Multiples')
   buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,tree,root,geneInteractions,tp1_s,viewMetric)
-  #fillSubgraphs(smallMultiplesTree,viewMetric,timepoints)
+  colorSmallMultiples(smallMultiplesTree,viewMetric)
+  placeSmallMultiples(smallMultiplesTree, 2)
