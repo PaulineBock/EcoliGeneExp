@@ -83,9 +83,9 @@ def initEdges(graph, negative, positive, color):
     if (negative[e] == False and positive[e] == True):
       color.setEdgeValue(e, green)
     if (negative[e] == False and positive[e] == False):
-      color.setEdgeValue(e, darkblue)
-    if (negative[e] == True and positive[e] == True):
       color.setEdgeValue(e, orange)
+    if (negative[e] == True and positive[e] == True):
+      color.setEdgeValue(e, darkblue)
       
   
  
