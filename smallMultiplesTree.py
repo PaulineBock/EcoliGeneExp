@@ -65,31 +65,55 @@ def placeSmallMultiples(smallMultiplesTree, nbCol):
   ymax = bb[1][1]
   
   smallLayout = smallMultiplesTree.getLayoutProperty("viewLayout")
-  col=1
-  while col <= nbCol:
-    if col==1:
-      for sg in smallMultiplesTree.getSubGraphs():
-        sgNames = sg.getName().split(" ")
-        sgName = sgNames[0]
-        nbSG = int(sgName[2:len(sgName)])
-        print nbSG
-        for node in sg.getNodes():
-          #print "before " + str(smallLayout[node])
-          newPos = tlp.Coord(smallLayout[node][0] + xmax * nbSG, smallLayout[node][1], smallLayout[node][2])
-          smallLayout.setNodeValue(node, newPos)  
-          #smallLayout[node][0] = smallLayout[node][0] + xmax * nbSG
-          #smallLayout[node][1] = smallLayout[node][1] + bb[1][1] * col
-          #print "after " + str(smallLayout[node])
-        newEdgePos = []
-        for edge in sg.getEdges():
-          #print "before " + str(smallLayout[edge])
-          for pos in smallLayout[edge]: 
-            newPos = tlp.Coord(pos[0] + xmax * nbSG, pos[1], pos[2])
-            newEdgePos.append(newPos)
-          smallLayout.setEdgeValue(edge, newEdgePos)  
-          #smallLayout[edge][i][0] = smallLayout[edge][i][0] + xmax * nbSG
-          #print "after " + str(smallLayout[edge])
-    col+=1
+  for sg in smallMultiplesTree.getSubGraphs():
+    sgNames = sg.getName().split(" ")
+    sgName = sgNames[0]
+    nbSG = int(sgName[2:len(sgName)])
+    print nbSG
+    if (nbSG <= nbCol):
+      for node in sg.getNodes():
+        newPos = tlp.Coord(smallLayout[node][0] + xmax * nbSG, smallLayout[node][1], smallLayout[node][2])
+        smallLayout.setNodeValue(node, newPos)  
+      newEdgePos = []
+      for edge in sg.getEdges():
+        for pos in smallLayout[edge]: 
+          newPos = tlp.Coord(pos[0] + xmax * nbSG, pos[1], pos[2])
+          newEdgePos.append(newPos)
+        smallLayout.setEdgeValue(edge, newEdgePos)  
+
+    if (nbSG <= nbCol* 2 and nbSG > nbCol):
+      for node in sg.getNodes():
+        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol), smallLayout[node][1] - ymax, smallLayout[node][2])
+        smallLayout.setNodeValue(node, newPos)  
+      newEdgePos = []
+      for edge in sg.getEdges():
+        for pos in smallLayout[edge]: 
+          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol) , pos[1] -ymax , pos[2])
+          newEdgePos.append(newPos)
+        smallLayout.setEdgeValue(edge, newEdgePos)  
+        
+    if (nbSG <= nbCol*3 and nbSG > nbCol * 2):
+      for node in sg.getNodes():
+        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol*2), smallLayout[node][1] - ymax*2, smallLayout[node][2])
+        smallLayout.setNodeValue(node, newPos)  
+      newEdgePos = []
+      for edge in sg.getEdges():
+        for pos in smallLayout[edge]: 
+          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol*2) , pos[1] - ymax*2 , pos[2])
+          newEdgePos.append(newPos)
+        smallLayout.setEdgeValue(edge, newEdgePos)  
+        
+    if (nbSG <= nbCol*4 and nbSG > nbCol * 3):
+      for node in sg.getNodes():
+        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol*3), smallLayout[node][1] - ymax*3, smallLayout[node][2])
+        smallLayout.setNodeValue(node, newPos)  
+      newEdgePos = []
+      for edge in sg.getEdges():
+        for pos in smallLayout[edge]: 
+          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol*3) , pos[1] - ymax*3 , pos[2])
+          newEdgePos.append(newPos)
+        smallLayout.setEdgeValue(edge, newEdgePos)  
+      
 
 def main(graph): 
   Locus = graph.getStringProperty("Locus")
@@ -137,7 +161,8 @@ def main(graph):
   viewTgtAnchorShape = graph.getIntegerProperty("viewTgtAnchorShape")
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
 
-  timepoints=[tp1_s,tp2_s,tp3_s,tp4_s,tp5_s,tp6_s,tp7_s,tp8_s,tp9_s,tp10_s,tp11_s,tp12_s,tp13_s,tp14_s,tp15_s,tp16_s,tp17_s]
+  #timepoints=[tp1_s,tp2_s,tp3_s,tp4_s,tp5_s,tp6_s,tp7_s,tp8_s,tp9_s,tp10_s,tp11_s,tp12_s,tp13_s,tp14_s,tp15_s,tp16_s,tp17_s]
+  timepoints = [tp1_s, tp2_s, tp3_s, tp4_s, tp5_s, tp6_s]
   rootGraph=graph.getRoot()
   geneInteractions = rootGraph.getDescendantGraph('Genes interactions')
   #Partie 3
