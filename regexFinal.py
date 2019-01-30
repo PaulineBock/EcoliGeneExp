@@ -82,21 +82,22 @@ def main(graph):
     liste.append(m)  
     
   file=open("data.txt","r")
-  # on effectue la reche dans le fichier
-#  codes= re.findall('(GO:\d+)',file.read())
-  locusName=re.findall('(ECK12\d+)',file.read())
   fichier_entier = file.read()
-  files = fichier_entier.split("\n")
+  # on effectue la reche dans le fichier
+  locusName=re.findall('(ECK12\d+)',fichier_entier)
 
-  for l in file.readline(): 
-    print l 
-"""    
+  files = fichier_entier.split("\n")
+  cpt=0
+
+  for l in files:    
     for mots in liste:
       for mots2 in locusName:
         if re.match(mots2,mots):
-          print l
-"""   
-  
+          cpt+=1
+          print files[cpt]
+        else:
+          cpt+=1
+#          print cpt
     
 
 
