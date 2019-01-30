@@ -76,28 +76,28 @@ def main(graph):
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
   
   Locus = graph.getStringProperty("Locus")
-  list=[]
+  liste=[]
   for n in graph.getNodes():
     m=Locus[n]
-    list.append(m)
-  
+    liste.append(m)  
+    
   file=open("data.txt","r")
-  string='ECK12(\d+)'
   # on effectue la reche dans le fichier
-  codes= re.findall('GO:(\d+)',file.read())
-  locusName=re.findall('ECK12(\d+)',file.read())
- 
-  # on ecrit seulement si on en trouve
-  if codes:
-    print '\n'.join(codes)
-#  if locusName:
-#    print '\n'.join(locusName)  
-   
-"""
-  for value in list:
-    if re.match(string,value) is not None:
-#      print "TRUE"
-      print value
-      
-"""
+#  codes= re.findall('(GO:\d+)',file.read())
+  locusName=re.findall('(ECK12\d+)',file.read())
+  fichier_entier = file.read()
+  files = fichier_entier.split("\n")
+
+  for l in file.readline(): 
+    print l 
+"""    
+    for mots in liste:
+      for mots2 in locusName:
+        if re.match(mots2,mots):
+          print l
+"""   
+  
+    
+
+
 
