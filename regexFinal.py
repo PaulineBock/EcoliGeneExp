@@ -87,17 +87,15 @@ def main(graph):
   locusName=re.findall('(ECK12\d+)',fichier_entier)
 
   files = fichier_entier.split("\n")
-  cpt=0
+  cpt=0 
 
-  for l in files:    
+  for l in files:  
     for mots in liste:
       for mots2 in locusName:
         if re.match(mots2,mots):
-          cpt+=1
           print files[cpt]
-        else:
-          cpt+=1
-#          print cpt
+    cpt+=1
+#          
     
 
 
