@@ -14,7 +14,7 @@
 #   * Ctrl + Space  : show auto-completion dialog.
 
 from tulip import tlp
-import re
+
 # The updateVisualization(centerViews = True) function can be called
 # during script execution to update the opened views
 
@@ -76,27 +76,33 @@ def main(graph):
   viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
   
   Locus = graph.getStringProperty("Locus")
-  liste=[]
-  for n in graph.getNodes():
-    m=Locus[n]
-    liste.append(m)  
-    
+  go = graph.getStringProperty("Gene Ontology")
+
+
+  
+  
   file=open("data.txt","r")
-  fichier_entier = file.read()
-  # on effectue la reche dans le fichier
-  locusName=re.findall('(ECK12\d+)',fichier_entier)
+  for i in range(0,14):
+    l = file.readline()
+  cpt = 100
+  while cpt<44000:
+    words = l.split(",")
+    lineLocus = words[0].split("(")
+    idLocus = lineLocus[1]
+    idLocus.replace("\'", "j")
 
-  files = fichier_entier.split("\n")
-  cpt=0 
-
-  for l in files:  
-    for mots in liste:
-      for mots2 in locusName:
-        if re.match(mots2,mots):
-          print files[cpt]
-    cpt+=1
-#          
     
+    for n in graph.getNodes():
+      nodeLocus = Locus[n]
+      compNodeLocus = "\'" + str(nodeLocus) + "\'" 
+      if (compNodeLocus == idLocus):
+        goTerm = words[7]
+        go[n] = go[n] + goTerm
+    cpt+=1
+    print cpt 
+    l = file.readline()
+ 
+
 
 
 
