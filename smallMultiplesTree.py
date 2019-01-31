@@ -1,154 +1,74 @@
 # Powered by Python 2.7
 
-# To cancel the modifications performed by the script
-# on the current graph, click on the undo button.
-
-# Some useful keyboards shortcuts : 
-#   * Ctrl + D : comment selected lines.
-#   * Ctrl + Shift + D  : uncomment selected lines.
-#   * Ctrl + I : indent selected lines.
-#   * Ctrl + Shift + I  : unindent selected lines.
-#   * Ctrl + Return  : run script.
-#   * Ctrl + F  : find selected text.
-#   * Ctrl + R  : replace selected text.
-#   * Ctrl + Space  : show auto-completion dialog.
+#Tulip project, part 3, building smallMultiples tree to see gene expressions at different time points in one view.
+#18-01-2019
+#Pauline Bock, Guillaume Sotton
 
 from tulip import tlp
+from tulipgui import tlpgui
 
-# The updateVisualization(centerViews = True) function can be called
-# during script execution to update the opened views
 
-# The pauseScript() function can be called to pause the script execution.
-# To resume the script execution, you will have to click on the "Run script " button.
 
-# The runGraphScript(scriptFile, graph) function can be called to launch
-# another edited script on a tlp.Graph object.
-# The scriptFile parameter defines the script name to call (in the form [a-zA-Z0-9_]+.py)
-
-# The main(graph) function must be defined 
-# to run the script on the current graph
-
+"""
+Creates smallMultiples Trees, colors them and displaces them.
+"""
+def createSmallMultiples(smallMultiplesTree, geneInteractions, timepoints, viewMetric):
+  buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,viewMetric)
+  nbCol = 4
+  colorSmallMultiples(smallMultiplesTree)
+  placeSmallMultiples(smallMultiplesTree, nbCol)
+  
+"""
+Builds smallMultiples graphs for each step of experiment time, and giving them the appropriate gene expression property into viewMetric property of each graph.
+Giving smallMultiples parent graph, gene interactions graph, a list of the timepoint properties, and ciewMetric property.
+"""
 def buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,metric):
   for i in range(1,len(timepoints)+1):
     tp=smallMultiplesTree.addSubGraph("tp"+str(i)+" s")
   
     inGraph=graph.getSubGraph("Genes interactions")
     tlp.copyToGraph(tp,inGraph, inSelection=None, outSelection=None)
-#    metric = tp.getLocalDoubleProperty("viewMetric")
+
   for time in timepoints:
     for sg in smallMultiplesTree.getSubGraphs():
       metric = sg.getLocalDoubleProperty("viewMetric")
       for n in sg.getNodes():
         timePropertyName = str(time).split(" ")
         timeName = timePropertyName[2]+" s"
+        #Check if the name of the graph (associated to one timepoint) is equal to the right timepoint property
         if(timeName == sg.getName()):
           metric[n] = time[n]
 
-def colorMapping(graph, doubleProperty):
-  params = tlp.getDefaultPluginParameters('Color Mapping', graph)
-  params['input property'] = doubleProperty
-      
-def colorSmallMultiples(smallMultiplesTree,metric):
+"""
+Colors all little graphs according to their viewMetric property, containing gene expression data.
+"""
+def colorSmallMultiples(smallMultiplesTree):
   for sg in smallMultiplesTree.getSubGraphs():
+    sgMetric = sg.getLocalDoubleProperty("viewMetric")
     params = tlp.getDefaultPluginParameters('Color Mapping', sg)
-    params['input property'] = metric
-    colorScale = tlp.ColorScale([])
-    newColors = [tlp.Color.Green, tlp.Color.Black,tlp.Color.Red]
-    colorScale.setColorScale(newColors,True)
+    params['input property'] = sgMetric
+
+    colorScaleManager = tlpgui.ColorScalesManager
+    colorScale = colorScaleManager.getColorScale("BiologicalHeatMap")
     params['color scale'] = colorScale
     sg.applyColorAlgorithm('Color Mapping',params)
 
-'''
+"""
+Displaces all the little graphs by order of time points, in several rows and columns, given a number of columns.
+"""
 def placeSmallMultiples(smallMultiplesTree, nbCol):
   bb = tlp.computeBoundingBox(smallMultiplesTree)
-  xmin = bb[0][0]
+  #Multiply by 2 to have a shift between all the graphs
   xmax = bb[1][0] *2
-  ymin = bb[0][1]
   ymax = bb[1][1] *2
-  print xmax
-  print ymax
   
-  
+  #Shifts all the graphs according to the number of their associated timepoint, the number of columns choosen and the bounding box
   for sg in smallMultiplesTree.getSubGraphs():
     smallLayout = sg.getLayoutProperty("viewLayout")
     sgNames = sg.getName().split(" ")
     sgName = sgNames[0]
     nbSG = int(sgName[2:len(sgName)])
-    print nbSG
-    if (nbSG <= nbCol):
-      for node in sg.getNodes():
-        newPos = tlp.Coord(smallLayout[node][0] + xmax * nbSG, smallLayout[node][1], smallLayout[node][2])
-        smallLayout.setNodeValue(node, newPos)  
-      
-      for edge in sg.getEdges():
-        newEdgePos = []
-        for pos in smallLayout[edge]:
-          newPos = tlp.Coord(pos[0] + xmax * nbSG, pos[1], pos[2])
-          newEdgePos.append(newPos)
-        smallLayout.setEdgeValue(edge, newEdgePos)
 
-    if (nbSG <= nbCol* 2 and nbSG > nbCol):
-      for node in sg.getNodes():
-        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol), smallLayout[node][1] - ymax, smallLayout[node][2])
-        smallLayout.setNodeValue(node, newPos)  
-     
-      for edge in sg.getEdges():
-        newEdgePos = []
-        for pos in smallLayout[edge]: 
-          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol) , pos[1] -ymax , pos[2])
-          newEdgePos.append(newPos)
-        smallLayout.setEdgeValue(edge, newEdgePos)  
-        
-    if (nbSG <= nbCol*3 and nbSG > nbCol * 2):
-      for node in sg.getNodes():
-        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol*2), smallLayout[node][1] - ymax*2, smallLayout[node][2])
-        smallLayout.setNodeValue(node, newPos)  
-      
-      for edge in sg.getEdges():
-        newEdgePos = []
-        for pos in smallLayout[edge]: 
-          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol*2) , pos[1] - ymax*2 , pos[2])
-          newEdgePos.append(newPos)
-        smallLayout.setEdgeValue(edge, newEdgePos)  
-        
-    if (nbSG <= nbCol*4 and nbSG > nbCol * 3):
-      for node in sg.getNodes():
-        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol*3), smallLayout[node][1] - ymax*3, smallLayout[node][2])
-        smallLayout.setNodeValue(node, newPos)  
-      
-      for edge in sg.getEdges():
-        newEdgePos = []
-        for pos in smallLayout[edge]: 
-          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol*3) , pos[1] - ymax*3 , pos[2])
-          newEdgePos.append(newPos)
-        smallLayout.setEdgeValue(edge, newEdgePos)  
-        
-    if (nbSG <= nbCol*5 and nbSG > nbCol * 4):
-      for node in sg.getNodes():
-        newPos = tlp.Coord(smallLayout[node][0] + xmax * (nbSG - nbCol*4), smallLayout[node][1] - ymax*4, smallLayout[node][2])
-        smallLayout.setNodeValue(node, newPos)  
-      
-      for edge in sg.getEdges():
-        newEdgePos = []
-        for pos in smallLayout[edge]: 
-          newPos = tlp.Coord(pos[0] + xmax * (nbSG - nbCol*4) , pos[1] - ymax*4 , pos[2])
-          newEdgePos.append(newPos)
-        smallLayout.setEdgeValue(edge, newEdgePos)  
-'''    
-def placeSmallMultiples(smallMultiplesTree, nbCol):
-  bb = tlp.computeBoundingBox(smallMultiplesTree)
-  xmax = bb[1][0] *2
-  ymax = bb[1][1] *2
-  print xmax
-  print ymax
-  
-  
-  for sg in smallMultiplesTree.getSubGraphs():
-    smallLayout = sg.getLayoutProperty("viewLayout")
-    sgNames = sg.getName().split(" ")
-    sgName = sgNames[0]
-    nbSG = int(sgName[2:len(sgName)])
-    print nbSG
     for i in range(0,nbCol+1):
       if (nbSG <= nbCol * (i+1) and nbSG > nbCol * i):
         for node in sg.getNodes():
@@ -162,19 +82,8 @@ def placeSmallMultiples(smallMultiplesTree, nbCol):
             newEdgePos.append(newPos)
           smallLayout.setEdgeValue(edge, newEdgePos)
 
-def createSmallMultiples(smallMultiplesTree, geneInteractions, timepoints, viewMetric):
-  buildSmallMultiples(smallMultiplesTree,geneInteractions,timepoints,viewMetric)
-  nbCol = 4
-  colorSmallMultiples(smallMultiplesTree,viewMetric)
-  placeSmallMultiples(smallMultiplesTree, nbCol)
-  
   
 def main(graph): 
-  Locus = graph.getStringProperty("Locus")
-  Negative = graph.getBooleanProperty("Negative")
-  Positive = graph.getBooleanProperty("Positive")
-  locus = graph.getStringProperty("locus")
-  similarity = graph.getDoubleProperty("similarity")
   tp1_s = graph.getDoubleProperty("tp1 s")
   tp10_s = graph.getDoubleProperty("tp10 s")
   tp11_s = graph.getDoubleProperty("tp11 s")
@@ -192,32 +101,19 @@ def main(graph):
   tp7_s = graph.getDoubleProperty("tp7 s")
   tp8_s = graph.getDoubleProperty("tp8 s")
   tp9_s = graph.getDoubleProperty("tp9 s")
-  viewBorderColor = graph.getColorProperty("viewBorderColor")
-  viewBorderWidth = graph.getDoubleProperty("viewBorderWidth")
-  viewColor = graph.getColorProperty("viewColor")
-  viewFont = graph.getStringProperty("viewFont")
-  viewFontSize = graph.getIntegerProperty("viewFontSize")
-  viewIcon = graph.getStringProperty("viewIcon")
-  viewLabel = graph.getStringProperty("viewLabel")
-  viewLabelBorderColor = graph.getColorProperty("viewLabelBorderColor")
-  viewLabelBorderWidth = graph.getDoubleProperty("viewLabelBorderWidth")
-  viewLabelColor = graph.getColorProperty("viewLabelColor")
-  viewLabelPosition = graph.getIntegerProperty("viewLabelPosition")
-  viewLayout = graph.getLayoutProperty("viewLayout")
   viewMetric = graph.getDoubleProperty("viewMetric")
-  viewRotation = graph.getDoubleProperty("viewRotation")
-  viewSelection = graph.getBooleanProperty("viewSelection")
-  viewShape = graph.getIntegerProperty("viewShape")
-  viewSize = graph.getSizeProperty("viewSize")
-  viewSrcAnchorShape = graph.getIntegerProperty("viewSrcAnchorShape")
-  viewSrcAnchorSize = graph.getSizeProperty("viewSrcAnchorSize")
-  viewTexture = graph.getStringProperty("viewTexture")
-  viewTgtAnchorShape = graph.getIntegerProperty("viewTgtAnchorShape")
-  viewTgtAnchorSize = graph.getSizeProperty("viewTgtAnchorSize")
-
+ 
+ 
   timepoints=[tp1_s,tp2_s,tp3_s,tp4_s,tp5_s,tp6_s,tp7_s,tp8_s,tp9_s,tp10_s,tp11_s,tp12_s,tp13_s,tp14_s,tp15_s,tp16_s,tp17_s]
   rootGraph=graph.getRoot()
   geneInteractions = rootGraph.getDescendantGraph('Genes interactions')
-  #Partie 3
+
   smallMultiplesTree=rootGraph.addSubGraph(name='Small Multiples')
   createSmallMultiples(smallMultiplesTree, geneInteractions, timepoints, viewMetric)
+
+  smallMultiplesView = tlpgui.createView("Node Link Diagram view", smallMultiplesTree, dataSet = {}, show=True)
+  glGraphRenderingParams = smallMultiplesView.getRenderingParameters()
+  glGraphRenderingParams.setEdgeColorInterpolate(True)
+
+
+  
